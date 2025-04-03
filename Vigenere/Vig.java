@@ -1,5 +1,7 @@
 public class Vig {
-    public String decryptVigenere(String cipherText, String key) { // Use Encrypted Code to Decrypt
+    public String decryptVigenere(String cipherText, String key) { 
+        // Uses the encryption method to decrypt the code
+        // The key is reversed to decrypt the code
         StringBuilder newKey = new StringBuilder();
         key = key.toUpperCase();
         for (char c : key.toCharArray()) {
@@ -11,6 +13,7 @@ public class Vig {
 
     public String encryptVigenere(String plainText, String key) { 
         // Encrypt the Code using a passed key
+        // encrypt p_i with k_(i%26) like a standard shift with that key value
         String text = plainText.toUpperCase();
         String keyUpper = key.toUpperCase();
         StringBuilder encryptedText = new StringBuilder();
@@ -26,9 +29,12 @@ public class Vig {
     }
 
     public static void main(String[] args) {
+        // Test the Vigenere cipher
+        // Encrypt and decrypt a message
         Vig vig = new Vig();
         String plainText = "meetmeatmidnight";
         String key = "tryst";
+        
         String cipherText = vig.encryptVigenere(plainText, key);
         System.out.println("Encrypted Text: " + cipherText);
 

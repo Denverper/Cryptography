@@ -1,6 +1,6 @@
 import java.util.Arrays;
 
-public class Ceaser {
+public class NumsToStrs {
     public String intsToStr(int[] nums) {
         String result = "";
         for (int i=0; i<nums.length; i++) {
@@ -21,7 +21,7 @@ public class Ceaser {
     }
 
     public static void main(String[] args) {
-        Ceaser pre1 = new Ceaser();
+        NumsToStrs pre1 = new NumsToStrs();
         String s = "hello world";
         int[] nums = pre1.strToInts(s);
         System.out.println(Arrays.toString(nums));

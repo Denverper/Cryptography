@@ -1,0 +1,38 @@
+public class Vig {
+    public String decryptVigenere(String cipherText, String key) { // Use Encrypted Code to Decrypt
+        StringBuilder newKey = new StringBuilder();
+        key = key.toUpperCase();
+        for (char c : key.toCharArray()) {
+            newKey.append((char) (((26 - (c - 'A')) + 'A')));
+        }
+        String decryptedString = encryptVigenere(cipherText, newKey.toString()).toLowerCase();
+        return decryptedString;
+    }
+
+    public String encryptVigenere(String plainText, String key) { 
+        // Encrypt the Code using a passed key
+        String text = plainText.toUpperCase();
+        String keyUpper = key.toUpperCase();
+        StringBuilder encryptedText = new StringBuilder();
+        for (int i=0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (Character.isLetter(c)) {
+                char k = keyUpper.charAt(i % keyUpper.length());
+                int shift = (k - 'A');
+                encryptedText.append((char) ((c - 'A' + shift) % 26 + 'A'));
+            }
+        }
+        return encryptedText.toString();
+    }
+
+    public static void main(String[] args) {
+        Vig vig = new Vig();
+        String plainText = "meetmeatmidnight";
+        String key = "tryst";
+        String cipherText = vig.encryptVigenere(plainText, key);
+        System.out.println("Encrypted Text: " + cipherText);
+
+        String decryptedText = vig.decryptVigenere(cipherText, key);
+        System.out.println("Decrypted Text: " + decryptedText);
+    }
+}

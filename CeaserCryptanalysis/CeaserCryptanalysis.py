@@ -113,3 +113,21 @@ def encryptCaesar(plaintext: str, key: int) -> str:
     encryptedText = _shift_text(plaintext, key).upper() ## encrypt the plaintext using the key
     return encryptedText
 
+def main():
+    """
+    This is the main function that runs the program.
+    """
+    # Example usage
+    plaintext = "this is a test to see if the algorithm can decrypt this text, and if it can encrypt it as well"
+    key = 3
+    print(f"Plaintext: {plaintext}")
+    
+    encryptedText = encryptCaesar(plaintext, key)
+    print(f"Encrypted text: {encryptedText}")
+
+    decryptedText = decryptCaesar(encryptedText)
+    print(f"Decrypted text: {decryptedText}")
+    
+    
+if __name__ == "__main__":
+    main()

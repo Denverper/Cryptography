@@ -29,28 +29,7 @@ english_freq = [
 
 ENGLISH_MIC = 0.065
 
-def getIC(cipertext: str) -> float:
-    """
-    This function takes a ciphertext and returns the index of coincidence (IC).
-    """
-    # Initialize the frequency count for each letter
-    freq_count = [0] * 26
-
-    # Count the frequency of each letter in the ciphertext
-    for char in cipertext:
-        if char.isalpha():
-            freq_count[ord(char.lower()) - ord('a')] += 1
-
-    # get the IC
-    ic = 0.0
-    total_chars = sum(freq_count) ##total number of valid characters in the cipertext
-    for count in freq_count:
-        if count > 0:
-            ic += (count / total_chars) ** 2
-
-    return ic
-
-def getMIC(cipertext: str) -> float:
+def getMIC(cipertext: str, engligh: bool = True) -> float:
     """
     This function takes a ciphertext and returns the mutual index of coincidence (MIC) between the text and English.
     """
@@ -67,7 +46,11 @@ def getMIC(cipertext: str) -> float:
     total_chars = sum(freq_count) ##total number of valid characters in the cipertext
     for i, count in enumerate(freq_count):
         if count > 0:
-            mic += (count / total_chars) * english_freq[i] ## multiply the frequency of the letter in the cipertext with the frequency of the letter in English
+            f = (count / total_chars)
+            if engligh:
+                mic += f * english_freq[i] ## multiply the frequency of the letter in the cipertext with the frequency of the letter in English
+            else:
+                mic += f * f ## multiply the frequency of the letter in the cipertext with itself
 
     return mic
 
@@ -94,8 +77,7 @@ def getKey(cipertext: str) -> int:
         mic = getMIC(text)
         distance = abs(ENGLISH_MIC - mic) ## get the distance from the english MIC, how accurate the shift is to being English
         if distance < BEST_KEY[1]:
-            BEST_KEY = (chr(i+ord("A")), distance)
-
+            BEST_KEY = (chr((26-i)%26+ord("A")), distance) # this finds the decryption key, we want the encryption key
     return BEST_KEY[0] ## return the best key found
 
 def decryptCaesar(cipertext: str) -> str:
@@ -103,7 +85,7 @@ def decryptCaesar(cipertext: str) -> str:
     This function takes a ciphertext and a key and returns the decrypted text.
     """
     key = getKey(cipertext)
-    decryptedText = _shift_text(cipertext, ord(key) - ord("A")) ## decrypt the cipertext using the key
+    decryptedText = _shift_text(cipertext, 26 - (ord(key) - ord("A"))) ## decrypt the cipertext using the key
     return decryptedText
 
 def encryptCaesar(plaintext: str, key: int) -> str:
@@ -126,8 +108,7 @@ def main():
     print(f"Encrypted text: {encryptedText}")
 
     decryptedText = decryptCaesar(encryptedText)
-    print(f"Decrypted text: {decryptedText}")
-    
+    print(f"Decrypted text: {decryptedText}")    
     
 if __name__ == "__main__":
     main()

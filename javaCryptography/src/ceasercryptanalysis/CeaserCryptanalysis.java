@@ -1,3 +1,5 @@
+package ceasercryptanalysis;
+
 public class CeaserCryptanalysis {
 
     final double[] ENGLISH_FREQ = {

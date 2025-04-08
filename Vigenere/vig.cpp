@@ -32,20 +32,20 @@ string decryptVigenere(const string& cipherText, const string& key) {
 }
 
 
-int main() {
-    // Example usage
-    // Encrypt and decrypt a message using the Vigenere cipher
-    string plainText, key;
-    plainText = "meetmeatmidnight";
-    key = "tryst";
+// int main() {
+//     // Example usage
+//     // Encrypt and decrypt a message using the Vigenere cipher
+//     string plainText, key;
+//     plainText = "meetmeatmidnight";
+//     key = "tryst";
 
-    cout << "Plain Text: " << plainText << endl;
-    cout << "Key: " << key << "\n" << endl;
+//     cout << "Plain Text: " << plainText << endl;
+//     cout << "Key: " << key << "\n" << endl;
 
-    string cipherText = encryptVigenere(plainText, key);
-    cout << "Cipher Text: " << cipherText << endl;
-    string decryptedText = decryptVigenere(cipherText, key);
-    cout << "Decrypted Text: " << decryptedText << endl;
-    return 0;
-}
+//     string cipherText = encryptVigenere(plainText, key);
+//     cout << "Cipher Text: " << cipherText << endl;
+//     string decryptedText = decryptVigenere(cipherText, key);
+//     cout << "Decrypted Text: " << decryptedText << endl;
+//     return 0;
+// }
 

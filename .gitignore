@@ -54,3 +54,4 @@ target/
 *.lock
 *.env
 Textbook/
+/.metadata/

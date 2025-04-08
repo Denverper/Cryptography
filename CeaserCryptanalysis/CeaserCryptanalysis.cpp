@@ -78,7 +78,7 @@ char getKey(const string& text) {
         float dist = abs(mic - 0.065);
         if (dist < bestMIC) {
             bestMIC = dist;
-            bestKey = i;
+            bestKey = (26-i)%26;
         }
     }
         
@@ -91,20 +91,23 @@ string encryptCeaser(const string& text, int key) {
 
 string decryptCeaser(const string& text) {
     char key = getKey(text);
-    return _shiftText(text, key);
+    return _shiftText(text, 26-key);
 }
 
-int main() {
-    string text = "this is a test to see if the ceaser cipher decryption works automatically";
-    int key = 3;
-    cout << "Original Text: " << text << endl;
+// int main() {
+//     string text = "this is a test to see if the ceaser cipher decryption works automatically";
+//     int key = 3;
+//     cout << "Original Text: " << text << endl;
 
-    string encryptedText = encryptCeaser(text, key);
-    cout << "Encrypted Text: " << encryptedText << endl;
+//     string encryptedText = encryptCeaser(text, key);
+//     cout << "Encrypted Text: " << encryptedText << endl;
 
-    string decryptedText = decryptCeaser(encryptedText);
-    cout << "Decrypted Text: " << decryptedText << endl;
+//     int keyFound = getKey(encryptedText);
+//     cout << "Key Found: " << keyFound << endl;
 
-    return 0;
-}
+//     string decryptedText = decryptCeaser(encryptedText);
+//     cout << "Decrypted Text: " << decryptedText << endl;
+
+//     return 0;
+// }
 

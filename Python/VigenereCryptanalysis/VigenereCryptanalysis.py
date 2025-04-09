@@ -173,7 +173,7 @@ def main():
     
     cli_args = sys.argv[1:]
     ciphers = None
-    verbose = True
+    verbose = False
     is_file = False
     USAGE = """
     VigenereCryptanalysis.py:

@@ -209,7 +209,7 @@ def main():
         decrypted.append(decrypt_vigenere(c, verbose))
         
     if is_file: # if a file, then write output to a file
-        with open("../../Assets/txts/decrypted.txt", "w+") as f:
+        with open(os.path.join(os.path.dirname(__file__), "../../Assets/txts/decrypted.txt"), "w+") as f:
             for plaintext in decrypted:
                 f.write(plaintext + "\n")
                    

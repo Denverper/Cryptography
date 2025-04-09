@@ -108,7 +108,7 @@ def main():
     print(f"Encrypted text: {encryptedText}")
 
     decryptedText = decryptCaesar(encryptedText)
-    print(f"Decrypted text: {decryptedText}")    
+    print(f"Decrypted text: {decryptedText}") 
+
     
-if __name__ == "__main__":
-    main()
+    

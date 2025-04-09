@@ -5,7 +5,7 @@ using namespace std;
 #include <vector>
 #include <fstream>
 #include "../CeaserCryptanalysis/CeaserCryptanalysis.h"
-#include "../Vigenere/vig.h"
+#include "../vigenere/vig.h"
 
 int getVigKeyLength(const string& ciphertext) {
     int keyLength = 0;
@@ -62,6 +62,10 @@ vector<string> getCeaserStrings(const string& ciphertext, int keyLength) {
 }
 
 string getVigKey(const string& ciphertext, bool verbose = false) {
+    if (abs(0.065 - getMIC(ciphertext, false)) <= 0.005) { // looks like English in freq analysis, try to decrypt with single character Ceaser
+        return string(1, getKey(ciphertext));
+    }
+
     int keyLength = getVigKeyLength(ciphertext);
     if (verbose) {
         cout << "Found Key Length: " << keyLength << endl;

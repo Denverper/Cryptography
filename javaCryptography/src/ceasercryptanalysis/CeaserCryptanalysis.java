@@ -2,7 +2,7 @@ package ceasercryptanalysis;
 
 public class CeaserCryptanalysis {
 
-    final double[] ENGLISH_FREQ = {
+    final static double[] ENGLISH_FREQ = {
         0.082, /* a */
         0.015, /* b */
         0.028, /* c */
@@ -31,7 +31,7 @@ public class CeaserCryptanalysis {
         0.001  /* z */
     };
 
-    public double getMIC(String text, boolean english) {
+    public static double getMIC(String text, boolean english) {
         if (!english) { // default param
             english = false; 
         }
@@ -62,7 +62,7 @@ public class CeaserCryptanalysis {
         return mic;
     }
 
-    public String _shiftText(String text, int shift) {
+    public static String _shiftText(String text, int shift) {
         StringBuilder shiftedText = new StringBuilder(); // hold the shifted text
         for (char c : text.toCharArray()) {
             if (Character.isLetter(c)) {
@@ -74,7 +74,7 @@ public class CeaserCryptanalysis {
         return shiftedText.toString();
     }
 
-    public char getKey(String text) {
+    public static char getKey(String text) {
         String[] shiftedTexts = new String[26];
         for (int i=0; i<26;i++) {
             shiftedTexts[i] = _shiftText(text, i);
@@ -100,20 +100,5 @@ public class CeaserCryptanalysis {
 
     public String encryptCeaser(String text, char key) {
         return _shiftText(text, key-'A');
-    }
-
-    public static void main(String[] args) {
-        CeaserCryptanalysis ca = new CeaserCryptanalysis();
-        String text = "Hello, this is a, test to see if the decryption works!";
-        System.out.println("Original text: " + text);
-
-        String encryptedText = ca.encryptCeaser(text, 'C');
-        System.out.println("Encrypted text: " + encryptedText);
-
-        char key = ca.getKey(encryptedText);
-        System.out.println("Found Key: " + key);
-
-        String decryptedText = ca.decryptCeaser(encryptedText);
-        System.out.println("Decrypted text: " + decryptedText);
     }
 }

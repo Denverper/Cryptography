@@ -21,8 +21,6 @@ def print_mult_table(n):
             else:
                 print(f"{((i*j)%n):2}", end=" | ")
 
-print_mult_table(6)
-
 def numberofinv(n):
     count = 0
     for i in range(n):

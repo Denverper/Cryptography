@@ -1,5 +1,7 @@
+package viginere;
+
 public class Vig {
-    public String encryptVigenere(String plainText, String key) { 
+    public static String encryptVigenere(String plainText, String key) { 
         // Encrypt the Code using a passed key
         // encrypt p_i with k_(i%26) like a standard shift with that key value
         String text = plainText.toUpperCase();
@@ -16,7 +18,7 @@ public class Vig {
         return encryptedText.toString();
     }
 
-    public String decryptVigenere(String cipherText, String key) { 
+    public static String decryptVigenere(String cipherText, String key) { 
         // Uses the encryption method to decrypt the code
         // The key is reversed to decrypt the code
         StringBuilder newKey = new StringBuilder();
@@ -26,19 +28,5 @@ public class Vig {
         }
         String decryptedString = encryptVigenere(cipherText, newKey.toString()).toLowerCase();
         return decryptedString;
-    }
-
-    public static void main(String[] args) {
-        // Test the Vigenere cipher
-        // Encrypt and decrypt a message
-        Vig vig = new Vig();
-        String plainText = "meetmeatmidnight";
-        String key = "tryst";
-
-        String cipherText = vig.encryptVigenere(plainText, key);
-        System.out.println("Encrypted Text: " + cipherText);
-
-        String decryptedText = vig.decryptVigenere(cipherText, key);
-        System.out.println("Decrypted Text: " + decryptedText);
     }
 }

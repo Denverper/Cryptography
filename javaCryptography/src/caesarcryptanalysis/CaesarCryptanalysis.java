@@ -1,6 +1,6 @@
-package ceasercryptanalysis;
+package caesarcryptanalysis;
 
-public class CeaserCryptanalysis {
+public class CaesarCryptanalysis {
 
     final static double[] ENGLISH_FREQ = {
         0.082, /* a */

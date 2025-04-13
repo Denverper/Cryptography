@@ -28,3 +28,4 @@ def numberofinv(n):
             count += 1
     return count
 
+print(print_mult_table(14))

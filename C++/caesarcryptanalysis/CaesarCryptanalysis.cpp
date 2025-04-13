@@ -85,29 +85,12 @@ char getKey(const string& text) {
     return bestKey;
 }
 
-string encryptCeaser(const string& text, int key) {
+string encryptCaesar(const string& text, int key) {
     return _shiftText(text, key);
 }
 
-string decryptCeaser(const string& text) {
+string decryptCaesar(const string& text) {
     char key = getKey(text);
     return _shiftText(text, 26-key);
 }
-
-// int main() {
-//     string text = "this is a test to see if the ceaser cipher decryption works automatically";
-//     int key = 3;
-//     cout << "Original Text: " << text << endl;
-
-//     string encryptedText = encryptCeaser(text, key);
-//     cout << "Encrypted Text: " << encryptedText << endl;
-
-//     int keyFound = getKey(encryptedText);
-//     cout << "Key Found: " << keyFound << endl;
-
-//     string decryptedText = decryptCeaser(encryptedText);
-//     cout << "Decrypted Text: " << decryptedText << endl;
-
-//     return 0;
-// }
 

@@ -1,17 +1,12 @@
 import math
 import os
 import sys
-
 from typing import Counter
 
-import sys
-import os
-
 ## for imports of helpers from other cipher code
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../CeaserCryptanalysis')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../Vigenere')))
-import CeaserCryptanalysis
-import vig
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../CaesarCryptanalysis')))
+import caeser_cryptanalysts # type: ignore
+import vigenere
 
 def getVigKeyLength(text):
     """
@@ -81,8 +76,8 @@ def getVigKey(text: str, verbose: bool=False):
         string: the encryption key
     """
     text=text.lower()
-    if abs(0.065 - CeaserCryptanalysis.getMIC(text, False)) <= 0.005: ##probably already english, meaning shift cipher, use ceaser decryption
-        key = CeaserCryptanalysis.getKey(text)
+    if abs(0.065 - caeser_cryptanalysts.getMIC(text, False)) <= 0.005: ##probably already english, meaning shift cipher, use ceaser decryption
+        key = caeser_cryptanalysts.getKey(text)
         if verbose:
             print("Looks like shift cipher, using single letter key:", key, "--> MIC: ")
         return key
@@ -105,10 +100,10 @@ def getVigKey(text: str, verbose: bool=False):
         best_so_far = (10000, "")
         
         for cstring in ceaserStrings: ## iterate over the found substrings and find their respective single char shifts, joining them to make a key
-            subKey = CeaserCryptanalysis.getKey(cstring)
+            subKey = caeser_cryptanalysts.getKey(cstring)
             key += subKey
-            shifted_string = CeaserCryptanalysis._shift_text(cstring, (26 - ord(subKey)- ord("A"))%26)
-            curr_mic = CeaserCryptanalysis.getMIC(shifted_string, True)
+            shifted_string = caeser_cryptanalysts._shift_text(cstring, (26 - ord(subKey)- ord("A"))%26)
+            curr_mic = caeser_cryptanalysts.getMIC(shifted_string, True)
 
             if verbose:
                 print(f"   - Cipher: {cstring.upper()} -- found key: {subKey} -- shifted substring: {shifted_string} -- MIC for key: {curr_mic:4f}")
@@ -116,7 +111,7 @@ def getVigKey(text: str, verbose: bool=False):
             i+=1
             mic_avg += curr_mic
         
-        distance = abs((mic_avg/len(ceaserStrings)) - CeaserCryptanalysis.ENGLISH_MIC) ## how good is this key
+        distance = abs((mic_avg/len(ceaserStrings)) - caeser_cryptanalysts.ENGLISH_MIC) ## how good is this key
         if distance < 0.005: ## looks correct, so return the key
             return key
         elif distance < best_so_far[0]: ## not quite there yet, so look at next key
@@ -144,12 +139,12 @@ def decrypt_vigenere(ciphertext: str, verbose:bool=False):
     if verbose:
         print("Full Key:", key)
         
-    plaintext = vig.decrypt_vigenere(ciphertext, key)
+    plaintext = vigenere.decrypt_vigenere(ciphertext, key)
     if verbose:
         print("Found Plaintext:", plaintext)
-        final_mic = CeaserCryptanalysis.getMIC(plaintext)
+        final_mic = caeser_cryptanalysts.getMIC(plaintext)
         print("Final MIC:",final_mic)
-        if abs(final_mic - CeaserCryptanalysis.ENGLISH_MIC) > 0.006:
+        if abs(final_mic - caeser_cryptanalysts.ENGLISH_MIC) > 0.006:
             print("MIC suggests decryption is probably incorrect")
         else:
             print("MIC suggests decryption is probably correct")

@@ -1,6 +1,6 @@
 package viginere;
 
-public class Vig {
+public class Vigenere {
     public static String encryptVigenere(String plainText, String key) { 
         // Encrypt the Code using a passed key
         // encrypt p_i with k_(i%26) like a standard shift with that key value

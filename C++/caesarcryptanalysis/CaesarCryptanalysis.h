@@ -1,5 +1,5 @@
-#ifndef CEASER_CRYPTANALYSIS_H
-#define CEASER_CRYPTANALYSIS_H
+#ifndef CAESAR_CRYPTANALYSIS_H
+#define CAESAR_CRYPTANALYSIS_H
 
 #include <string>
 #include <iostream>
@@ -46,9 +46,9 @@ string _shiftText(const string& text, int shift);
 char getKey(const string& text);
 
 // Function to encrypt text using the Caesar cipher
-string encryptCeaser(const string& text, int key);
+string encryptCaesar(const string& text, int key);
 
 // Function to decrypt text using the Caesar cipher
-string decryptCeaser(const string& text);
+string decryptCaesar(const string& text);
 
-#endif // CEASER_CRYPTANALYSIS_H
+#endif

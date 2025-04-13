@@ -4,8 +4,8 @@ using namespace std;
 #include <string>
 #include <vector>
 #include <fstream>
-#include "../CeaserCryptanalysis/CeaserCryptanalysis.h"
-#include "../vigenere/vig.h"
+#include "../CaesarCryptanalysis/CaesarCryptanalysis.h"
+#include "vig.h"
 
 int getVigKeyLength(const string& ciphertext) {
     int keyLength = 0;
@@ -53,16 +53,16 @@ int getVigKeyLength(const string& ciphertext) {
     return keyLength;
 }
 
-vector<string> getCeaserStrings(const string& ciphertext, int keyLength) {
-    vector<string> ceaserStrings(keyLength);
+vector<string> getCaesarStrings(const string& ciphertext, int keyLength) {
+    vector<string> caesarStrings(keyLength);
     for (int i = 0; i < ciphertext.length(); ++i) {
-        ceaserStrings[i % keyLength] += ciphertext[i];
+        caesarStrings[i % keyLength] += ciphertext[i];
     }
-    return ceaserStrings;
+    return caesarStrings;
 }
 
 string getVigKey(const string& ciphertext, bool verbose = false) {
-    if (abs(0.065 - getMIC(ciphertext, false)) <= 0.005) { // looks like English in freq analysis, try to decrypt with single character Ceaser
+    if (abs(0.065 - getMIC(ciphertext, false)) <= 0.005) { // looks like English in freq analysis, try to decrypt with single character Caesar
         return string(1, getKey(ciphertext));
     }
 
@@ -70,10 +70,10 @@ string getVigKey(const string& ciphertext, bool verbose = false) {
     if (verbose) {
         cout << "Found Key Length: " << keyLength << endl;
     }
-    vector<string> ceaserStrings = getCeaserStrings(ciphertext, keyLength);
+    vector<string> caesarStrings = getCaesarStrings(ciphertext, keyLength);
     string key = "";
 
-    for (const auto& str : ceaserStrings) {
+    for (const auto& str : caesarStrings) {
         char k = getKey(str) + 'A';
         if (verbose) {
             string shiftedStr = _shiftText(str, (26 - (k - 'A'))%26);

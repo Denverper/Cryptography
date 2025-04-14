@@ -1,5 +1,5 @@
 package affine;
-import caesarcryptanalysis.*;
+import caesar.*;
 import tools.Tuple;
 
 public class AffineCryptanalysis {

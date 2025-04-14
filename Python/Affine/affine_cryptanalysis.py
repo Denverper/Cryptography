@@ -1,7 +1,7 @@
 import sys
 sys.path.append('/Users/denverpersinger/COMP3705/Python/CaesarCryptanalysis')
 import caesar_cryptanalysis # type: ignore
-from affine_cipher import inverses, decrypt_affine, encrypt_affine
+from affine import inverses, decrypt_affine, encrypt_affine
 
 
 def get_key_brute_force(text):

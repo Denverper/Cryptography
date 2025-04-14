@@ -1,6 +1,6 @@
 package viginere;
 
-import caesarcryptanalysis.CaesarCryptanalysis;
+import caesar.CaesarCryptanalysis;
 import java.util.ArrayList;
 import java.util.HashMap;
 

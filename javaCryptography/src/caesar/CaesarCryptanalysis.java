@@ -1,4 +1,4 @@
-package caesarcryptanalysis;
+package caesar;
 
 public class CaesarCryptanalysis {
 

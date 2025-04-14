@@ -1,6 +1,6 @@
 #include <tuple>
 #include "Affine.h"
-#include "../caesarcryptanalysis/CaesarCryptanalysis.h"
+#include "../Caesar/CaesarCryptanalysis.h"
 
 using namespace std;
 

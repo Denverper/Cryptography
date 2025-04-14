@@ -4,8 +4,8 @@ using namespace std;
 #include <string>
 #include <vector>
 #include <fstream>
-#include "../CaesarCryptanalysis/CaesarCryptanalysis.h"
-#include "vig.h"
+#include "../Caesar/CaesarCryptanalysis.h"
+#include "Vigenere.h"
 
 int getVigKeyLength(const string& ciphertext) {
     int keyLength = 0;

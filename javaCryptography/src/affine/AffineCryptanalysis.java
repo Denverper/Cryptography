@@ -13,7 +13,7 @@ public class AffineCryptanalysis {
                 double dist = Math.abs(0.065 - mic);
                 if (dist < best.getFirst()) {
                     best.setFirst(dist);
-                    best.setSecond(new Tuple<Integer, Integer>(i, j));
+                    best.setSecond(new Tuple<>(i, j));
                 }
             }
         }

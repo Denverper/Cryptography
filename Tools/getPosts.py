@@ -30,4 +30,4 @@ def getPosts(discussion_id: int, file_to_save:str = ""):
         for cipher in ciphers:
             f.write(cipher + "\n")
         
-# getPosts(affine)
+getPosts(affine)

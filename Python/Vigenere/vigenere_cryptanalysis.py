@@ -8,6 +8,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../Caes
 import caesar_cryptanalysis # type: ignore
 import vigenere
 
+CORRECTNESS_THRESHOLD = 0.005
+
 def getVigKeyLength(text):
     """
     Find the probable length of the key using the first method learned in class (Kasiski):
@@ -18,7 +20,7 @@ def getVigKeyLength(text):
         text (string): the ciphertext to find the key length of
 
     Returns:
-        list[int] (length 3): the top three most probably key lengths to try, for due dilligence 
+        list[int] (length <= 3): the top three most probably key lengths to try, for due dilligence 
     """
     text = text.lower() ## init buffers
     tripMap = {}
@@ -76,13 +78,13 @@ def getVigKey(text: str, verbose: bool=False):
         string: the encryption key
     """
     text=text.lower()
-    if abs(0.065 - caesar_cryptanalysis.getMIC(text, False)) <= 0.005: ##probably already english, meaning shift cipher, use ceaser decryption
+    if abs(caesar_cryptanalysis.ENGLISH_MIC - caesar_cryptanalysis.getMIC(text, False)) <= CORRECTNESS_THRESHOLD: ##probably already english, meaning shift cipher, use ceaser decryption
         key = caesar_cryptanalysis.getKey(text)
         if verbose:
             print("Looks like shift cipher, using single letter key:", key, "--> MIC: ")
         return key
     
-    possibleKeyLens = getVigKeyLength(text)
+    possibleKeyLens = getVigKeyLength(text) ## get the top 3 key lengths
     if verbose:
         print(f"Key lengths of {possibleKeyLens} found (Top 3)")
         
@@ -111,8 +113,8 @@ def getVigKey(text: str, verbose: bool=False):
             i+=1
             mic_avg += curr_mic
         
-        distance = abs((mic_avg/len(ceaserStrings)) - caesar_cryptanalysis.ENGLISH_MIC) ## how good is this key
-        if distance < 0.005: ## looks correct, so return the key
+        distance = abs((mic_avg/len(ceaserStrings)) - caesar_cryptanalysis.ENGLISH_MIC) ## how good is this key?
+        if distance < CORRECTNESS_THRESHOLD: ## looks correct, so return the key
             return key
         elif distance < best_so_far[0]: ## not quite there yet, so look at next key
             best_so_far = (distance, key)
@@ -144,7 +146,7 @@ def decrypt_vigenere(ciphertext: str, verbose:bool=False):
         print("Found Plaintext:", plaintext)
         final_mic = caesar_cryptanalysis.getMIC(plaintext)
         print("Final MIC:",final_mic)
-        if abs(final_mic - caesar_cryptanalysis.ENGLISH_MIC) > 0.006:
+        if abs(final_mic - caesar_cryptanalysis.ENGLISH_MIC) > CORRECTNESS_THRESHOLD:
             print("MIC suggests decryption is probably incorrect")
         else:
             print("MIC suggests decryption is probably correct")
@@ -170,43 +172,56 @@ def main():
     ciphers = None
     verbose = False
     is_file = False
+    save_as_file = False
     USAGE = """
     VigenereCryptanalysis.py:
         [ -v | -verbose ]: Optional. Enables verbose mode to display detailed decryption steps.
-        [ -u | -h | -usage | -help ] output the usage
-        <ciphertext>  : Required. The ciphertext to decrypt. Can be a string or a file path with one line containing the cipher.
-        If a file is passed, each line will be treated as a seperate cipher
+        [ -u | -h | -usage | -help ]: Outputs the usage information.
+        [ -d <output_file> ]: Optional. Specifies the destination file to save the decrypted text.
+        <ciphertext>: Required. The ciphertext to decrypt. Can be a string or a file path with one line containing the cipher.
+        If a file is passed, each line will be treated as a separate cipher.
         If no args are provided, cipher must be given in the terminal and verbose will default to False.
     """
-    
     i = 0
+    cipher = None
     if len(cli_args) >= 1: ## if command line args were used
-        if cli_args[i] == "-u" or cli_args[i] == "-h" or cli_args[i] == "-help" or cli_args[i] == "-usage":
-            print(USAGE)
-            return
-        if cli_args[i] == "-v" or cli_args[i] == "-verbose":
-            verbose=True
-            i+=1
-        if len(cli_args) >= i+1:
-            cipher = cli_args[i]
-            if os.path.isfile(cipher):
-                is_file = True
-                with open(cli_args[i], 'r') as file:
-                    ciphers = file.read().strip().splitlines()
+        while i < len(cli_args):
+            arg = cli_args[i]
+            if arg in ("-u", "-h", "-help", "-usage"):
+                print(USAGE)
+                return
+            elif arg in ("-v", "-verbose"):
+                verbose = True
+            elif arg == "-d":
+                i += 1
+                if i < len(cli_args):
+                    output_file = cli_args[i]
+                    save_as_file = True
+                else:
+                    print("Error: No destination file provided after -d flag.")
+                    return
             else:
-                ciphers = [cli_args[i]]
+                cipher = arg
+            i+=1
         
-    if not ciphers: 
-        ciphers = [input("Please input cipher to decrypt: ")]
-    
-    decrypted = []
-    for c in ciphers: ## decrypt every cipher
-        decrypted.append(decrypt_vigenere(c, verbose))
+    if not cipher:
+        cipher = input("Please input cipher to decrypt: ")
         
-    if is_file: # if a file, then write output to a file
-        with open(os.path.join(os.path.dirname(__file__), "../../Assets/txts/decrypted.txt"), "w+") as f:
-            for plaintext in decrypted:
-                f.write(plaintext + "\n")
+    if os.path.isfile(cipher):
+        is_file = True
+        with open(cipher, 'r') as file:
+            ciphers = file.read().strip().splitlines()
+    else:
+        ciphers = [cipher]
+    i += 1
+
+    decrypted = [decrypt_vigenere(c, verbose) for c in ciphers]
+
+    if save_as_file:
+        output_file = output_file if 'output_file' in locals() else os.path.join(os.path.dirname(__file__), "../../Assets/txts/decrypted.txt")
+        with open(output_file, "w") as f:
+            f.writelines(plaintext + "\n" for plaintext in decrypted)
+        
                    
 if __name__ == "__main__":
     main()

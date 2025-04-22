@@ -1,0 +1,40 @@
+# Vigenere Cryptanalysis Project
+
+## Overview
+I decrypted Vigenere ciphers by finding the key length using the Kasiski examination method, splitting the cipher into substrings, and decrypting each substring as if they were encrypted by Caesar. The program can take a string or a file as input for the ciphertext. It also has a verbose mode that provides detailed steps of the decryption process. From personal testing on all of the discussion posts, it works pretty well and decrypts most of them. In the cases where it fails, such as Jack and Aarons posts, the key length is correct, but it has 1-2 incorrect letters in the found key due to how the substrings MICs were found, the MIC is still extremely close to 0.065, however.
+
+## How to Run
+
+```bash
+python vigenere_cryptanalyis.py [options] <ciphertext>
+```
+
+### Options:
+- `-v` or `-verbose`: (Optional) Enables verbose mode to display detailed decryption steps.
+- `-u`, `-h`, `-usage`, or `-help`: Outputs the usage information to terminal.
+- `-d <output_file>`: (Optional) Specifies the destination file to save the decrypted text, if this is ommitted, it will be only outputted to the terminal.
+
+### Arguments:
+- `<ciphertext>`: (Required) The ciphertext to decrypt. This can be:
+    - A string passed directly in the terminal.
+    - A file path containing the ciphertext. If a file is passed, each line will be treated as a separate cipher.
+
+### Notes:
+- If no arguments are provided, the tool will prompt for the ciphertext in the terminal, and verbose mode will default to `False` and output will be send to standard out.
+- If you do not want to use the CLI, you can still run the python file and input the cipher or file manually in the terminal. This will have verbose mode off by default and will output only the found plaintext to standard out. You can manually change the value of verbose to `True` in the code if you want to see the verbose output without CLI (Line 172)!
+
+### Examples:
+1. Decrypt a (fake) cipher with verbose mode:
+     ```bash
+     python3 vigenere_cryptanalyis.py -v "LXFOPVEFRNHR"
+     ```
+
+2. Decrypt a file and save the output, with verbose mode in the terminal for each cipher in ciphertext.txt:
+     ```bash
+     python3 vigenere_cryptanalyis.py -v -d output.txt ciphertext.txt
+     ```
+
+3. Display usage information:
+     ```bash
+     python3 vigenere_cryptanalyis.py -h
+     ```

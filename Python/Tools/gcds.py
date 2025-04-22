@@ -3,48 +3,53 @@ import copy
 def gcd(a: int, b:int):
     return a if b==0 else gcd(b, a%b)
 
-def extended_euclidean(a:int, n:int):
-    a,n = max(a,n), min(a,n)
-    prevs = [None, None]
-    while a%n != 0:
-        ## remainder reexpression
-        currRemaind = [[a if prevs[1] is None else copy.deepcopy(prevs[1]), 1], [n if prevs[0] is None else copy.deepcopy(prevs[0]), -(a//n)]]
-
-        ## substitution
-        substituted = []
+def mod_inv(m:int, n:int):    
+    n, m = max(n, m), min(n, m) ## make sure correct order
+    mod_val = n
     
-        for thing in currRemaind:
-            if type(thing[0]) != int:
-                for subthing in thing[0]:
-                    subthing[1] *= thing[1]
-                    substituted.append(subthing)
-            else:
-                substituted.append(thing)
+    if gcd(n,m) != 1:
+        return -1 ## no inv
+    
+    ## buffer for last two remainder values
+    prevs = [None, None]
+    while n%m != 0:
+        ## remainder reexpression and substitution
+        ## expressions are in the form [value, coefficent] -> value * coeffiecent with a list of expressions being seperated by +
+        currRemaind = [[n if prevs[1] is None else copy.deepcopy(prevs[1]), 1], [m if prevs[0] is None else copy.deepcopy(prevs[0]), -(n//m)]]
+
+        substituted = [] ## buffer to hold remainder with everything seperated and multiplied out
+        for value in currRemaind:
+            if type(value[0]) != int: ## first value is a list, resolve nested expression by multiplying it out by its coefficient
+                for expression in value[0]:
+                    expression[1] *= value[1]
+                    substituted.append(expression)
+            else: ## if it's a number, meaning its in the form of a single expression, add it to the longer substituted expression
+                substituted.append(value)
         
-        ## combine
+        ## combine step, put everything into a map to combine coefficents
         seenMap = {}
-        for thing in substituted:
-            if thing[0] in seenMap:
-                seenMap[thing[0]] += thing[1]
+        for expression in substituted:
+            if expression[0] in seenMap:
+                seenMap[expression[0]] += expression[1]
             else:
-                seenMap[thing[0]] = thing[1]
+                seenMap[expression[0]] = expression[1]
         
+        ## combine everything from the map
         combinedRemainder = []
         for key, val in seenMap.items():
             combinedRemainder.append([key, val]) 
     
         tmp = prevs[0]
-
-        prevs = [combinedRemainder, tmp]
+        prevs = [combinedRemainder, tmp] ## push current remainder to the stack
         
-        a, n =  n, a%n
+        m, n =  n%m, m ##next n and m
     
-    ## now prev
-    print(prevs)
+    if prevs[0] is None:
+        return 1 ## no coefficents, so mult by 1, think about case of m = 1 and n = 2
+    
+    ## find the coefficient of the smaller value between n and m
     if prevs[0][0][0] < prevs[0][1][0]:
-        return abs(prevs[0][0][1])
+        return prevs[0][0][1] % mod_val
     else:
-        return abs(prevs[0][1][1])
-
-print(extended_euclidean(26, 25))
-
+        return prevs[0][1][1] % mod_val
+    

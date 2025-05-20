@@ -35,5 +35,3 @@ def getPhi(n):
         if gcds.gcd(n, i) == 1:
             phi += 1
     return phi
-
-print(modular_exponentiation(138,40, 150))

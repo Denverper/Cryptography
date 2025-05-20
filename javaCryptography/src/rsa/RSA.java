@@ -17,8 +17,7 @@ public class RSA {
 
     public static String decrytRSA(ArrayList<BigInteger> c, BigInteger d, BigInteger n) {
         // Pass in the encrypted blocks and the private key
-        // Decrypt each block using the private key
-        // and concatenate the results
+        // Decrypt each block using the private key and concatenate the results
         StringBuilder s = new StringBuilder();
         for (BigInteger i : c) {
             BigInteger decryptedBlock = ModularExponentiation.mod_exp(i, d, n);
@@ -33,6 +32,7 @@ public class RSA {
      }
 
     public static ArrayList<BigInteger> getASCIIBlocks(String m) {
+        // helper function to convert the message into ASCII BigInt blocks of length 214 bytes, per assignment description
         ArrayList<BigInteger> res = new ArrayList<>();
 
         for (int i = 0; i < m.length(); i += 214) {
@@ -45,23 +45,115 @@ public class RSA {
         return res;
     }
 
-private static BigInteger getAsciiVal(String s) {
-    byte[] bytes = s.getBytes(); 
-    return new BigInteger(1, bytes);
-}
+    private static BigInteger getAsciiVal(String s) {
+        // heler function to convert a string into a BigInt
+        byte[] bytes = s.getBytes(); 
+        return new BigInteger(1, bytes);
+    }
 
+    public static String decryptFromFile(String encryptedTextFile, String publicKeyFile, String privateKeyFile) {
+        // Given a file with the encrypted text, a public key file, and a private key file, read the keys and the encrypted text in blocks
+        // and decrypt the text using the private key, returning the decrypted text
+        // The public key file should contain the modulus n and the exponent e on separate lines, n first
+        // The private key file should contain the exponent d on a single line
+        // The encrypted text file should contain the ciphertext blocks, one per line
+
+        ArrayList<BigInteger> c = new ArrayList<>();
+        BigInteger d = BigInteger.ZERO;
+        BigInteger n = BigInteger.ZERO;
+
+        // Read public key values from file (each line is a different key)
+        try (java.io.BufferedReader keyReader = new java.io.BufferedReader(new java.io.FileReader(publicKeyFile))) {
+            String nLine = keyReader.readLine(); // Read the first line to get n
+            if (nLine != null) {
+                n = new BigInteger(nLine.trim());
+            } else {
+                throw new IllegalArgumentException("Public key file must contain n and e on separate lines.");
+            }
+        } catch (java.io.IOException keyErr) {
+            keyErr.printStackTrace();
+            return "";
+        }
+
+        // Read private key value from file (d is on a single line)
+        try (java.io.BufferedReader keyReader = new java.io.BufferedReader(new java.io.FileReader(privateKeyFile))) {
+            String dLine = keyReader.readLine();
+            if (dLine != null) {
+                d = new BigInteger(dLine.trim());
+            } else {
+                throw new IllegalArgumentException("Private key file must contain a line with d.");
+            }
+        } catch (java.io.IOException keyErr) {
+            keyErr.printStackTrace();
+            return "";
+        }
+
+        // Read the encrypted text from the file, each line is a different block to be decrypted and concatenated
+        try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.FileReader(encryptedTextFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                c.add(new BigInteger(line));
+            }
+        } catch (java.io.IOException err) {
+            err.printStackTrace();
+        }
+
+        return decrytRSA(c, d, n);
+    }
+
+    public static ArrayList<BigInteger> encryptFromFile(String plainTextFile, String publicKeyFile) {
+        // Given a file with the plaintext message and a public key file, read the keys and the plaintext message
+        // Then encrypt the message using the public keys, returning the encrypted text as an array of BigIntegers for each encrypted block
+
+        // read the plaintext message 
+        StringBuilder message = new StringBuilder();
+        try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.FileReader(plainTextFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                message.append(line);
+            }
+        } catch (java.io.IOException err) {
+            err.printStackTrace();
+            return null;
+        }
+        
+        // get the public key values from the file
+        BigInteger e = BigInteger.ZERO;
+        BigInteger n = BigInteger.ZERO;
+        try (java.io.BufferedReader keyReader = new java.io.BufferedReader(new java.io.FileReader(publicKeyFile))) {
+            String nLine = keyReader.readLine(); // Read the first line to get n
+            String eLine = keyReader.readLine(); // Read the second line to get e
+            if (nLine != null && eLine != null) {
+                e = new BigInteger(eLine.trim());
+                n = new BigInteger(nLine.trim());
+            } else {
+                throw new IllegalArgumentException("Public key file must contain n and e on separate lines.");
+            }
+        } catch (java.io.IOException keyErr) {
+            keyErr.printStackTrace();
+            return null;
+        }
+        return encryptRSA(message.toString(), e, n);
+    }
+    
     public static void main(String[] args) {
-        String m = "WILLYOUTAKEALOOKATTHATPRETTYPATHETICHUHWELLYOULLNEVERBELIEVETHISBUTTHATLLAMAYOURELOOKINGATWASONCEAHUMANBEINGANDNOTJUSTANYHUMANBEINGTHATGUYWASANEMPERORARICHPOWERFULBALLOFCHARISMAOHYEAHTHISISHISSTORYWELLACTUALLYMYSTORYTHATSRIGHTIMTHATLLAMATHENAMEISKUZCOEMPERORKUZCOIWASTHEWORLDSNICESTGUYANDTHEYRUINEDMYLIFEFORNOREASONOHISTHATHARDTOBELIEVELOOKITELLYOUWHATYOUGOBACKAWAYSYOUKNOWBEFOREIWASALLAMAANDTHISWILLALLMAKESENSEALLRIGHTNOWSEETHATSALITTLETOOFARBACKOHLOOKATMETHATSMEASABABYAHEMALLRIGHTLETSMOVEAHEADOHYEAHTHEREAREDESPOTSANDDICTATORSPOLITICALMANIPULATORSTHEREAREBLUEBLOODSWITHTHEINTELLECTSOFFLEASTHEREAREKINGSANDCATTYTYRANTSWHOARESOLACKINGINREFINEMENTSTHEYDBEBETTERSUITEDSWINGINGFROMTHETREESHEWASBORNANDRAISEDTORULE";
-        BigInteger e = new BigInteger("4176633317755433431678678465889845648936806464054866324801744270342879044357669071538839129364698164188798225568335994640432560988356730693851317935746877161305651215590558294715565265787259928455687779275518989163716278946174842872593308106774329128648241556306020338325508704527416130688489628415582686345635693623358474263275478962412758022516421325101632609820589933809050550757747025490064609998396350574372258369895583579424232259743356143849915773687015194184717679321087404939363733716866682044749344859345372083518644958446399833747002184853693942701921082639972060795990236397154101820908184629901054840663");
-        BigInteger n = new BigInteger("14298181905606428347627867110585917348912683448698978471804729574373779858086632467238799069649901576504916566304536661705268080039971945507404314082440363737497962776748827332482389599283969278800550813823873063435132684378328939822815610184019316982015941901886112691184498349051766454836272673177203307545214590830176163386832720647098168334761696461462847810619080847797532047942838579638498302905904892859844751396170672344434048027879329595548282317278534435515026753427827313841328736451206675985752448738124499752171280428574482710417865608895117382309990899824941382269138221052659161841874082502923516327369");
-        BigInteger d = new BigInteger("14002174790121783527288317630633164782209207260104997127596659484324683118954544207658545438928308614624419863541136955007512796926197426499840625873197484771163080886647676848153799823249517091727012292596320959149870939248303455680519758666308748236028811332568509339757761177088926065655620436927894316342612758396654539591543545516197467073501771253743377392282456643176883428862584939110553805839174462698718516603826745188004031053048627181817201882415757647925188703809521827024454659375537475317917491255570890824686753321650475963802717179884502587047508924109849803332503937781591334750730252315897935894375");
-        ArrayList<BigInteger> encryptedBlocks = RSA.encryptRSA(m, e, n); 
-        System.out.println("Encrypted Blocks:");
+        // regardless of current working directory, as long as the files are in the project root it works
+        String projectRoot = System.getProperty("user.dir");
+        String plainTextFile = projectRoot + "/inputFiles/plainText.txt";
+        String publicKeyFile = projectRoot + "/inputFiles/publicKeys.txt";
+        String privateKeyFile = projectRoot + "/inputFiles/privateKeys.txt";
+        String encryptedTextFile = projectRoot + "/inputFiles/encryptedText.txt";
+
+        // Encrypt the message from the plaintext file using the public key
+        ArrayList<BigInteger> encryptedBlocks = encryptFromFile(plainTextFile, publicKeyFile);
+        System.out.println("Encrypted blocks from plaintext file:");
         for (BigInteger block : encryptedBlocks) {
             System.out.println(block);
         }
-        String decryptedMessage = RSA.decrytRSA(encryptedBlocks, d, n);
-        System.out.println("Decrypted Message:");
+
+        // Decrypt the message from the encrypted text file using the private key and public key
+        String decryptedMessage = decryptFromFile(encryptedTextFile, publicKeyFile, privateKeyFile);
+        System.out.println("Decrypted message from encrypted text file:");
         System.out.println(decryptedMessage);
     }
 }

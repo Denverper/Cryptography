@@ -1,7 +1,6 @@
 package rsa;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import tools.ModularExponentiation;
 
 public class RSA {
     public static ArrayList<BigInteger> encryptRSA(String m, BigInteger e, BigInteger n) {
@@ -10,7 +9,7 @@ public class RSA {
         ArrayList<BigInteger> res = new ArrayList<>();
         ArrayList<BigInteger> blocks = getASCIIBlocks(m);
         for (BigInteger block : blocks) {
-            res.add(ModularExponentiation.mod_exp(block, e, n));
+            res.add(mod_exp(block, e, n));
         }
         return res;
     }
@@ -20,7 +19,7 @@ public class RSA {
         // Decrypt each block using the private key and concatenate the results
         StringBuilder s = new StringBuilder();
         for (BigInteger i : c) {
-            BigInteger decryptedBlock = ModularExponentiation.mod_exp(i, d, n);
+            BigInteger decryptedBlock = mod_exp(i, d, n);
             byte[] bytes = decryptedBlock.toByteArray();
             StringBuilder blockString = new StringBuilder();
             for (byte b : bytes) {
@@ -31,7 +30,7 @@ public class RSA {
         return s.toString();
      }
 
-    public static ArrayList<BigInteger> getASCIIBlocks(String m) {
+    private static ArrayList<BigInteger> getASCIIBlocks(String m) {
         // helper function to convert the message into ASCII BigInt blocks of length 214 bytes, per assignment description
         ArrayList<BigInteger> res = new ArrayList<>();
 
@@ -46,11 +45,29 @@ public class RSA {
     }
 
     private static BigInteger getAsciiVal(String s) {
-        // heler function to convert a string into a BigInt
+        // helper function to convert a string into a BigInt
         byte[] bytes = s.getBytes(); 
         return new BigInteger(1, bytes);
     }
+    
+    private static BigInteger mod_exp(BigInteger x, BigInteger a, BigInteger m) {
+        // my modular exponentiation function from the previous homework
+        if (m == BigInteger.ONE) {
+            return BigInteger.ZERO;
+        }
 
+        BigInteger result = new BigInteger("1");
+        while (a != BigInteger.ZERO) {
+            if (! a.mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
+                result = result.multiply(x).mod(m);
+            }
+            x = x.multiply(x).mod(m);
+            a = a.shiftRight(1);
+        }
+        return result;
+    }
+
+    @SuppressWarnings("CallToPrintStackTrace")
     public static String decryptFromFile(String encryptedTextFile, String publicKeyFile, String privateKeyFile) {
         // Given a file with the encrypted text, a public key file, and a private key file, read the keys and the encrypted text in blocks
         // and decrypt the text using the private key, returning the decrypted text
@@ -64,7 +81,7 @@ public class RSA {
 
         // Read public key values from file (each line is a different key)
         try (java.io.BufferedReader keyReader = new java.io.BufferedReader(new java.io.FileReader(publicKeyFile))) {
-            String nLine = keyReader.readLine(); // Read the first line to get n
+            String nLine = keyReader.readLine(); // first line has n
             if (nLine != null) {
                 n = new BigInteger(nLine.trim());
             } else {
@@ -75,11 +92,11 @@ public class RSA {
             return "";
         }
 
-        // Read private key value from file (d is on a single line)
+        // Read private key value from file
         try (java.io.BufferedReader keyReader = new java.io.BufferedReader(new java.io.FileReader(privateKeyFile))) {
             String dLine = keyReader.readLine();
             if (dLine != null) {
-                d = new BigInteger(dLine.trim());
+                d = new BigInteger(dLine.trim()); // d is the only line in the file
             } else {
                 throw new IllegalArgumentException("Private key file must contain a line with d.");
             }
@@ -101,6 +118,7 @@ public class RSA {
         return decrytRSA(c, d, n);
     }
 
+    @SuppressWarnings("CallToPrintStackTrace")
     public static ArrayList<BigInteger> encryptFromFile(String plainTextFile, String publicKeyFile) {
         // Given a file with the plaintext message and a public key file, read the keys and the plaintext message
         // Then encrypt the message using the public keys, returning the encrypted text as an array of BigIntegers for each encrypted block
@@ -121,8 +139,8 @@ public class RSA {
         BigInteger e = BigInteger.ZERO;
         BigInteger n = BigInteger.ZERO;
         try (java.io.BufferedReader keyReader = new java.io.BufferedReader(new java.io.FileReader(publicKeyFile))) {
-            String nLine = keyReader.readLine(); // Read the first line to get n
-            String eLine = keyReader.readLine(); // Read the second line to get e
+            String nLine = keyReader.readLine(); // first line has n
+            String eLine = keyReader.readLine(); // second line has e
             if (nLine != null && eLine != null) {
                 e = new BigInteger(eLine.trim());
                 n = new BigInteger(nLine.trim());
@@ -137,6 +155,12 @@ public class RSA {
     }
     
     public static void main(String[] args) {
+        // this main method uses the given public and private keys put into files in the inputFiles directory
+        // it uses the given plaintext and encrypted text files to test the encrypt and decrypt functions
+
+        // changing the plaintext file will give different encrypted text, but will not change the encrypted text file
+        // changing the encrypted text file will give different decrypted text, but will not change the plaintext file
+
         // regardless of current working directory, as long as the files are in the project root it works
         String projectRoot = System.getProperty("user.dir");
         String plainTextFile = projectRoot + "/inputFiles/plainText.txt";

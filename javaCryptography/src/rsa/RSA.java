@@ -1,6 +1,7 @@
 package rsa;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class RSA {
     public static ArrayList<BigInteger> encryptRSA(String m, BigInteger e, BigInteger n) {
@@ -57,14 +58,155 @@ public class RSA {
         }
 
         BigInteger result = new BigInteger("1");
-        while (a != BigInteger.ZERO) {
-            if (! a.mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
+        while (a.compareTo(BigInteger.ZERO) != 0) {
+            if (!a.mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
                 result = result.multiply(x).mod(m);
             }
             x = x.multiply(x).mod(m);
             a = a.shiftRight(1);
         }
         return result;
+    }
+
+    private static BigInteger jacobi(BigInteger a, BigInteger n) {
+        // find the Jacobi symbol (a/n) using the rules of the Jacobi symbol described in class
+        // return 1, 0, or -1
+
+        if (n.compareTo(BigInteger.ZERO) <= 0 || n.mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
+            throw new IllegalArgumentException("n must be a positive and odd");
+        }
+
+        a = a.mod(n); 
+
+        if (a.equals(BigInteger.ZERO)) {
+            return BigInteger.ZERO;
+        }
+        if (a.equals(BigInteger.ONE) || n.equals(BigInteger.ONE)) {
+            return BigInteger.ONE;
+        }
+        if (!a.gcd(n).equals(BigInteger.ONE)) {
+            return BigInteger.ZERO;
+        }
+
+        int result = 1;
+        while (a.compareTo(BigInteger.ZERO) > 0) {
+            while (a.mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
+                a = a.divide(BigInteger.TWO);
+                BigInteger nMod8 = n.mod(BigInteger.valueOf(8));
+                if (nMod8.equals(BigInteger.valueOf(3)) || nMod8.equals(BigInteger.valueOf(5))) {
+                    result = -result;
+                }
+            }
+            // Swap a and n
+            BigInteger temp = a;
+            a = n;
+            n = temp;
+            if (a.mod(BigInteger.valueOf(4)).equals(BigInteger.valueOf(3)) &&
+                n.mod(BigInteger.valueOf(4)).equals(BigInteger.valueOf(3))) {
+                result = -result;
+            }
+            a = a.mod(n);
+        }
+        return n.equals(BigInteger.ONE) ? BigInteger.valueOf(result) : BigInteger.ZERO;
+    }
+
+    private static BigInteger get1024Num() {
+        // This function will create and return a pseudo-random 1024 bit large odd number
+        // we shift a BigInteger left 1022 times, generating a random bit each time, then set the last bit to 1 to make it odd and the first to 1 to make it 2048 bits long
+        BigInteger primeCandidate = new BigInteger("1");
+        for (int i = 0; i < 1022; i++) {
+            // Generate a random bit and set it in the prime candidate
+            int bit = (int) (Math.random() * 2);
+            primeCandidate = primeCandidate.shiftLeft(1);
+            if (bit == 1) {
+                // set the first bit to 1 if we generated a 1, 50% of the time probably
+                primeCandidate = primeCandidate.setBit(0);
+            }
+        }
+        primeCandidate = primeCandidate.setBit(1023); // set the last bit to 1 to make it 2048 bits long
+        primeCandidate = primeCandidate.setBit(0); // set the first bit to 1 to make it odd
+
+        return primeCandidate;
+    }
+
+    private static BigInteger gcd(BigInteger a, BigInteger b) {
+        while (!b.equals(BigInteger.ZERO)) {
+            BigInteger temp = b;
+            b = a.mod(b);
+            a = temp;
+        }
+        return a.abs(); 
+    }
+
+    private static BigInteger modInverse(BigInteger A, BigInteger M)
+    {
+        BigInteger m0 = M;
+        BigInteger y = BigInteger.ZERO, x = BigInteger.ONE;
+
+        if (M.equals(BigInteger.ONE))
+            return BigInteger.ZERO;
+
+        BigInteger a = A;
+        BigInteger m = M;
+
+        while (a.compareTo(BigInteger.ONE) > 0) {
+            // q is quotient
+            BigInteger q = a.divide(m);
+
+            BigInteger t = m;
+
+            // m is remainder now, process same as Euclid's algo
+            m = a.mod(m);
+            a = t;
+            t = y;
+
+            // Update x and y
+            y = x.subtract(q.multiply(y));
+            x = t;
+        }
+
+        // Make x positive
+        if (x.compareTo(BigInteger.ZERO) < 0)
+            x = x.add(m0);
+
+        return x;
+    }
+
+    public static boolean SolvayStrassen(BigInteger p) {
+        // This function will check if a number is prime using the Solovay-Strassen primality test
+        // It returns true if the number is prime, false otherwise
+        if (p.compareTo(BigInteger.ONE) <= 0) {
+            return false; // 1 and below are not prime
+        }
+        if (p.equals(BigInteger.TWO)) {
+            return true; // 2 is prime
+        }
+        if (p.mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
+            return false; // even numbers greater than 2 are not prime
+        }
+
+        BigInteger a;
+        for (int i = 0; i < 1; i++) { // use 55 different a's for 1 in 1000000000000 of false positives
+            // generate a random a in the range [1, p-1]
+            a = new BigInteger(p.bitLength(), new Random());
+
+            while (a.compareTo(p) >= 0 || a.compareTo(BigInteger.ONE) <= 0) {
+                a = new BigInteger(p.bitLength(), new java.util.Random());
+            }
+            if (gcd(a, p).compareTo(BigInteger.ONE) != 0) {
+                return false; // a and p are not coprime, p is composite
+            }
+            BigInteger eulerCritereon = mod_exp(a, p.subtract(BigInteger.ONE).divide(BigInteger.TWO), p);
+            if (eulerCritereon.compareTo(BigInteger.ONE) != 0 && eulerCritereon.compareTo((p.subtract(BigInteger.ONE))) != 0) {
+                return false; // not prime, fails Eulers criterion
+            }
+
+            BigInteger jacobi = jacobi(a, p);
+            if (!jacobi.equals(eulerCritereon)) {
+                return false; // not prime
+            }
+        }
+        return true; // probably prime, 999999999999/1000000000000 likelihood
     }
 
     @SuppressWarnings("CallToPrintStackTrace")
@@ -153,26 +295,114 @@ public class RSA {
         }
         return encryptRSA(message.toString(), e, n);
     }
+
+    public static void generateKeys(boolean verbose, boolean writeToFiles) {
+        BigInteger p = RSA.get1024Num();
+
+        int count = 1;
+        while (!RSA.SolvayStrassen(p)) {
+            p = RSA.get1024Num(); // generate a new e until we find a prime
+            count++;
+
+        }
+        System.out.println("Found probable prime p after " + count + " iterations");
+
+        count = 1;
+        BigInteger q = RSA.get1024Num();
+
+        while (!RSA.SolvayStrassen(q)) {
+            q = RSA.get1024Num(); // generate a new e until we find a prime
+            count++;
+        }
+
+        System.out.println("Found probable prime q after " + count + " iterations");
+
+        BigInteger n = p.multiply(q);
+        System.out.println("n = " + n);
+
+        BigInteger phiN = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));  
+        BigInteger e = BigInteger.ZERO;
+        while (gcd(phiN, e).compareTo(BigInteger.ONE) != 0 || e.compareTo(BigInteger.ONE) <= 0 || e.compareTo(phiN) >= 0) {
+            // generate a new e until we find one that is coprime to phiN and in the range (1, phiN)
+            e = new BigInteger(phiN.bitLength(), new Random());
+        }
+
+        BigInteger d = modInverse(e, phiN); // ensure e is coprime to phiN
+
+        if (verbose) {
+            System.out.println("e = " + e);
+            System.out.println("d = " + d);
+            System.out.println("phiN = " + phiN);
+            if (e.multiply(d).mod(phiN).compareTo(BigInteger.ONE) != 0) {
+                System.out.println("(e * d) mod phiN != 1, uh oh, keys are not valid :O");
+            } else {
+                System.out.println("(e * d) mod phiN = 1, keys are valid :)");
+            }
+        }
+        if (writeToFiles){
+            System.out.println("Writing keys to files...");
+            String projectRoot = System.getProperty("user.dir");
+            String publicKeyFile = projectRoot + "/inputFiles/publicKeys.txt";
+            String privateKeyFile = projectRoot + "/inputFiles/privateKeys.txt";
+
+            try (java.io.BufferedWriter writer = new java.io.BufferedWriter(new java.io.FileWriter(publicKeyFile))) {
+                writer.write(n.toString());
+                writer.newLine();
+                writer.write(e.toString());
+            } catch (java.io.IOException eErr) {}
+
+            try (java.io.BufferedWriter writer = new java.io.BufferedWriter(new java.io.FileWriter(privateKeyFile))) {
+                writer.write(d.toString());
+            } catch (java.io.IOException dErr) {}
+        }
+
+    }
     
+    @SuppressWarnings("CallToPrintStackTrace")
     public static void main(String[] args) {
         // this main method uses the given public and private keys put into files in the inputFiles directory
         // it uses the given plaintext and encrypted text files to test the encrypt and decrypt functions
-
-        // changing the plaintext file will give different encrypted text, but will not change the encrypted text file
-        // changing the encrypted text file will give different decrypted text, but will not change the plaintext file
-
+        // changing the plaintext file will give different encrypted text and replace the encrypted text file
         // regardless of current working directory, as long as the files are in the project root it works
+
         String projectRoot = System.getProperty("user.dir");
         String plainTextFile = projectRoot + "/inputFiles/plainText.txt";
         String publicKeyFile = projectRoot + "/inputFiles/publicKeys.txt";
         String privateKeyFile = projectRoot + "/inputFiles/privateKeys.txt";
         String encryptedTextFile = projectRoot + "/inputFiles/encryptedText.txt";
 
+        // if you have personal keys you want to use, set the supersecretmode to true and put them in a supersecretkeys directory
+        String superSecretPublicKeys = projectRoot + "/supersecretkeys/publicKeys.txt";
+        String superSecretPrivateKeys = projectRoot + "/supersecretkeys/privateKeys.txt";
+        boolean supersecretmode = false;
+
+        boolean generateKeys = false; // set to true to generate new keys, false to use existing keys
+        boolean verbose = false; // set to true to print out key generation details, such as amount of primes tested, false to keep it quiet
+        boolean writeToFiles = false; // set to true to write the keys to files (in the inputFiles directory), false to just print them out
+
+        if (supersecretmode) {
+            // if supersecretmode is true, use the super secret keys (my personal keys) instead of the input files, which are the keys I generated for tests
+            publicKeyFile = superSecretPublicKeys;
+            privateKeyFile = superSecretPrivateKeys;
+        } 
+
+        if (generateKeys) {
+            // generate new keys and write them to files
+            generateKeys(verbose, writeToFiles);
+            return; // stop after generating keys
+        }
+
         // Encrypt the message from the plaintext file using the public key
         ArrayList<BigInteger> encryptedBlocks = encryptFromFile(plainTextFile, publicKeyFile);
-        System.out.println("Encrypted blocks from plaintext file:");
-        for (BigInteger block : encryptedBlocks) {
-            System.out.println(block);
+
+        // Write each encrypted block to the encryptedTextFile, one per line
+        try (java.io.BufferedWriter writer = new java.io.BufferedWriter(new java.io.FileWriter(encryptedTextFile))) {
+            for (BigInteger block : encryptedBlocks) {
+                writer.write(block.toString());
+                writer.newLine();
+            }
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
         }
 
         // Decrypt the message from the encrypted text file using the private key and public key

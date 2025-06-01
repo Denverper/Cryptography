@@ -27,4 +27,5 @@ def printOrdZn(n):
     print(elems)
     print("Num Generators:", ords.count(len(elems)), "\n")
     
-printOrdZn(13)
+print(getOrd(7, 2691119))
+    

@@ -54,4 +54,5 @@ target/
 *.lock
 *.env
 Textbook/
+supersecretkeys/
 /.metadata/

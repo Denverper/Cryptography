@@ -35,3 +35,17 @@ def getPhi(n):
         if gcds.gcd(n, i) == 1:
             phi += 1
     return phi
+
+def getResidues(quad, m):
+    """
+    finds the quadrilateral residues for a number mod m
+    """
+    if modular_exponentiation(quad, (m-1)//2, m) == 1:
+        residues = []
+        for i in range(0, m):
+            if modular_exponentiation(i, 2, m) == quad:
+                residues.append(i)
+        return residues
+    return -1
+
+print(modular_exponentiation(8, 10, 21))

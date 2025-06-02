@@ -112,7 +112,7 @@ public class RSA {
 
     private static BigInteger get1024Num() {
         // This function will create and return a pseudo-random 1024 bit large odd number
-        // we shift a BigInteger left 1022 times, generating a random bit each time, then set the last bit to 1 to make it odd and the first to 1 to make it 2048 bits long
+        // we shift a BigInteger left 1022 times, generating a random bit, 0 or 1, to set in the BigInteger in each iteration
         BigInteger primeCandidate = new BigInteger("1");
         for (int i = 0; i < 1022; i++) {
             // Generate a random bit and set it in the prime candidate
@@ -123,7 +123,7 @@ public class RSA {
                 primeCandidate = primeCandidate.setBit(0);
             }
         }
-        primeCandidate = primeCandidate.setBit(1023); // set the last bit to 1 to make it 2048 bits long
+        primeCandidate = primeCandidate.setBit(1023); // set the last bit to 1 to make it 2048 bits long, should already be a 1 there, but just in case
         primeCandidate = primeCandidate.setBit(0); // set the first bit to 1 to make it odd
 
         return primeCandidate;
@@ -175,14 +175,8 @@ public class RSA {
     public static boolean SolvayStrassen(BigInteger p) {
         // This function will check if a number is prime using the Solovay-Strassen primality test
         // It returns true if the number is prime, false otherwise
-        if (p.compareTo(BigInteger.ONE) <= 0) {
-            return false; // 1 and below are not prime
-        }
-        if (p.equals(BigInteger.TWO)) {
-            return true; // 2 is prime
-        }
         if (p.mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
-            return false; // even numbers greater than 2 are not prime
+            return false; // ensure not even, even though we generate odd numbers
         }
 
         BigInteger a;
@@ -298,35 +292,44 @@ public class RSA {
 
     public static void generateKeys(boolean verbose, boolean writeToFiles) {
         BigInteger p = RSA.get1024Num();
+        if (verbose){
+            System.out.println("Generating 1024 bit primes. 1 in 1000000000000 chance of composite.");
+        }
 
         int count = 1;
         while (!RSA.SolvayStrassen(p)) {
-            p = RSA.get1024Num(); // generate a new e until we find a prime
+            p = RSA.get1024Num(); // generate a new p until we find a prime
             count++;
 
         }
-        System.out.println("Found probable prime p after " + count + " iterations");
-
+        if (verbose){
+            System.out.println("Found probable prime p after " + count + " iterations");
+        }
         count = 1;
         BigInteger q = RSA.get1024Num();
 
         while (!RSA.SolvayStrassen(q)) {
-            q = RSA.get1024Num(); // generate a new e until we find a prime
+            q = RSA.get1024Num(); // generate a new q until we find a prime
             count++;
         }
-
-        System.out.println("Found probable prime q after " + count + " iterations");
-
+        if (verbose){
+            System.out.println("Found probable prime q after " + count + " iterations");
+            System.out.println("Finding n and phiN from p and q");
+        }
         BigInteger n = p.multiply(q);
-        System.out.println("n = " + n);
 
-        BigInteger phiN = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));  
+        BigInteger phiN = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE)); 
+        if (verbose){
+            System.out.println("Finding an e such that gcd(e, phiN) = 1 and 1 < e < phiN");
+        }
         BigInteger e = BigInteger.ZERO;
         while (gcd(phiN, e).compareTo(BigInteger.ONE) != 0 || e.compareTo(BigInteger.ONE) <= 0 || e.compareTo(phiN) >= 0) {
             // generate a new e until we find one that is coprime to phiN and in the range (1, phiN)
             e = new BigInteger(phiN.bitLength(), new Random());
         }
-
+        if (verbose){
+            System.out.println("Finding a d such that (e * d) mod phiN = 1");
+        }
         BigInteger d = modInverse(e, phiN); // ensure e is coprime to phiN
 
         if (verbose) {
@@ -355,7 +358,6 @@ public class RSA {
                 writer.write(d.toString());
             } catch (java.io.IOException dErr) {}
         }
-
     }
     
     @SuppressWarnings("CallToPrintStackTrace")
@@ -376,8 +378,8 @@ public class RSA {
         String superSecretPrivateKeys = projectRoot + "/supersecretkeys/privateKeys.txt";
         boolean supersecretmode = false;
 
-        boolean generateKeys = false; // set to true to generate new keys, false to use existing keys
-        boolean verbose = false; // set to true to print out key generation details, such as amount of primes tested, false to keep it quiet
+        boolean generateKeys = true; // set to true to generate new keys, false to use existing keys
+        boolean verbose = true; // set to true to print out key generation details, such as amount of primes tested, false to keep it quiet
         boolean writeToFiles = false; // set to true to write the keys to files (in the inputFiles directory), false to just print them out
 
         boolean encrypt = false; // set to true to encrypt the message

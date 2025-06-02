@@ -186,7 +186,7 @@ public class RSA {
         }
 
         BigInteger a;
-        for (int i = 0; i < 1; i++) { // use 55 different a's for 1 in 1000000000000 of false positives
+        for (int i = 0; i < 55; i++) { // use 55 different a's for 1 in 1000000000000 of false positives
             // generate a random a in the range [1, p-1]
             a = new BigInteger(p.bitLength(), new Random());
 
@@ -380,6 +380,9 @@ public class RSA {
         boolean verbose = false; // set to true to print out key generation details, such as amount of primes tested, false to keep it quiet
         boolean writeToFiles = false; // set to true to write the keys to files (in the inputFiles directory), false to just print them out
 
+        boolean encrypt = false; // set to true to encrypt the message
+        boolean decrypt = false; // set to true to decrypt the message
+
         if (supersecretmode) {
             // if supersecretmode is true, use the super secret keys (my personal keys) instead of the input files, which are the keys I generated for tests
             publicKeyFile = superSecretPublicKeys;
@@ -392,22 +395,26 @@ public class RSA {
             return; // stop after generating keys
         }
 
-        // Encrypt the message from the plaintext file using the public key
-        ArrayList<BigInteger> encryptedBlocks = encryptFromFile(plainTextFile, publicKeyFile);
+        if (encrypt) {
+            // Encrypt the message from the plaintext file using the public key
+            ArrayList<BigInteger> encryptedBlocks = encryptFromFile(plainTextFile, publicKeyFile);
 
-        // Write each encrypted block to the encryptedTextFile, one per line
-        try (java.io.BufferedWriter writer = new java.io.BufferedWriter(new java.io.FileWriter(encryptedTextFile))) {
-            for (BigInteger block : encryptedBlocks) {
-                writer.write(block.toString());
-                writer.newLine();
+            // Write each encrypted block to the encryptedTextFile, one per line
+            try (java.io.BufferedWriter writer = new java.io.BufferedWriter(new java.io.FileWriter(encryptedTextFile))) {
+                for (BigInteger block : encryptedBlocks) {
+                    writer.write(block.toString());
+                    writer.newLine();
+                }
+            } catch (java.io.IOException e) {
+                e.printStackTrace();
             }
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
         }
 
-        // Decrypt the message from the encrypted text file using the private key and public key
-        String decryptedMessage = decryptFromFile(encryptedTextFile, publicKeyFile, privateKeyFile);
-        System.out.println("Decrypted message from encrypted text file:");
-        System.out.println(decryptedMessage);
+        if (decrypt) {
+            // Decrypt the message from the encrypted text file using the private key and public key
+            String decryptedMessage = decryptFromFile(encryptedTextFile, publicKeyFile, privateKeyFile);
+            System.out.println("Decrypted message from encrypted text file:");
+            System.out.println(decryptedMessage);
+        }
     }
 }

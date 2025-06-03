@@ -172,7 +172,7 @@ public class RSA {
         return x;
     }
 
-    public static boolean SolvayStrassen(BigInteger p) {
+    public static boolean SolvayStrassen(BigInteger p, int reps) {
         // This function will check if a number is prime using the Solovay-Strassen primality test
         // It returns true if the number is prime, false otherwise
         if (p.mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
@@ -180,7 +180,7 @@ public class RSA {
         }
 
         BigInteger a;
-        for (int i = 0; i < 55; i++) { // use 55 different a's for 1 in 1000000000000 of false positives
+        for (int i = 0; i < reps; i++) { 
             // generate a random a in the range [1, p-1]
             a = new BigInteger(p.bitLength(), new Random());
 
@@ -196,9 +196,14 @@ public class RSA {
             }
 
             BigInteger jacobi = jacobi(a, p);
-            if (!jacobi.equals(eulerCritereon)) {
-                return false; // not prime
-            }
+            // since jacobi(a, p) can return 1, 0, or -1, and euler is either 1 or p-1, we have to make sure they match and -1 = p-1
+            BigInteger expected = jacobi.equals(BigInteger.ONE) ? BigInteger.ONE
+                    : jacobi.equals(BigInteger.valueOf(-1)) ? p.subtract(BigInteger.ONE)
+                    : BigInteger.ZERO;
+            if (!eulerCritereon.equals(expected)) {
+                return false;
+}
+
         }
         return true; // probably prime, 999999999999/1000000000000 likelihood
     }
@@ -290,14 +295,15 @@ public class RSA {
         return encryptRSA(message.toString(), e, n);
     }
 
-    public static void generateKeys(boolean verbose, boolean writeToFiles) {
+    public static void generateKeys(boolean verbose, boolean writeToFiles, int reps) {
         BigInteger p = RSA.get1024Num();
         if (verbose){
-            System.out.println("Generating 1024 bit primes. 1 in 1000000000000 chance of composite.");
+            double probablityOfComposite = (((1024 * Math.log(2))-2))/((1024 * Math.log(2))-2 + Math.pow(2, reps+1));
+            System.out.println("Generating 1024 bit primes. Probablility of accidental composite is: " + probablityOfComposite);
         }
 
         int count = 1;
-        while (!RSA.SolvayStrassen(p)) {
+        while (!RSA.SolvayStrassen(p, reps)) {
             p = RSA.get1024Num(); // generate a new p until we find a prime
             count++;
 
@@ -308,7 +314,7 @@ public class RSA {
         count = 1;
         BigInteger q = RSA.get1024Num();
 
-        while (!RSA.SolvayStrassen(q)) {
+        while (!RSA.SolvayStrassen(q, reps)) {
             q = RSA.get1024Num(); // generate a new q until we find a prime
             count++;
         }
@@ -335,6 +341,7 @@ public class RSA {
         if (verbose) {
             System.out.println("e = " + e);
             System.out.println("d = " + d);
+            System.out.println("n = " + n);
             System.out.println("phiN = " + phiN);
             if (e.multiply(d).mod(phiN).compareTo(BigInteger.ONE) != 0) {
                 System.out.println("(e * d) mod phiN != 1, uh oh, keys are not valid :O");
@@ -379,8 +386,9 @@ public class RSA {
         boolean supersecretmode = false;
 
         boolean generateKeys = true; // set to true to generate new keys, false to use existing keys
+        final int REPS_A = 55;
         boolean verbose = true; // set to true to print out key generation details, such as amount of primes tested, false to keep it quiet
-        boolean writeToFiles = false; // set to true to write the keys to files (in the inputFiles directory), false to just print them out
+        boolean writeToFiles = true; // set to true to write the keys to files (in the inputFiles directory), false to just print them out
 
         boolean encrypt = false; // set to true to encrypt the message
         boolean decrypt = false; // set to true to decrypt the message
@@ -393,7 +401,7 @@ public class RSA {
 
         if (generateKeys) {
             // generate new keys and write them to files
-            generateKeys(verbose, writeToFiles);
+            generateKeys(verbose, writeToFiles, REPS_A);
             return; // stop after generating keys
         }
 

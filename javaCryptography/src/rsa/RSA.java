@@ -386,7 +386,7 @@ public class RSA {
         boolean supersecretmode = false; 
 
         boolean generateKeys = false; // set to true to generate new keys, false to use existing keys
-        final int REPS_A = 55;
+        final int REPS_A = 55; // change this to change the number of values of a we test in SS. higher number means more certain prime.
         boolean verbose = true; // set to true to print out key generation details, such as amount of primes tested, false to keep it quiet
         boolean writeToFiles = false; // set to true to write the keys to files (in the inputFiles directory), false to just print them out
 

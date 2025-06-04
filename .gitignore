@@ -56,3 +56,6 @@ target/
 Textbook/
 supersecretkeys/
 /.metadata/
+
+.metadata/
+.settings/

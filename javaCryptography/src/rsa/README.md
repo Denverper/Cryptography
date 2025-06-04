@@ -12,6 +12,7 @@ The code can be run in many different ways by changing the below variables in th
 - `publicKeys.txt`: Contains the public keys. `n` is on the first line, and `e` is on the second line. `n` is the mod and `e` is the public exponent.
 - `privateKeys.txt`: Contains the private exponent `d` on one line.
 - `encryptedText.txt`: Contains the encrypted text, each line is a separate encrypted block to be independently decrypted with the private key.
+- `supersecretmode`: Set to `true` to use the super secret keys from `supersecretkeys/publicKeys.txt` and/or `supersecretkeys/privateKeys.txt`, or `false` to use the regular keys from `publicKeys.txt` and `privateKeys.txt`.
 - `supersecretkeys/publicKeys.txt`: Contains the super secret public keys, formatted like `publicKeys.txt`.
 - `supersecretkeys/privateKeys.txt`: Contains the super secret private keys, formatted like `privateKeys.txt`.
 
@@ -26,7 +27,6 @@ For key generation, you can adjust the following variables:
 ### Variables influencing encryption/decryption:
 - `encrypt`: Set to `true` to encrypt the plaintext from `plainText.txt` using the public key from `publicKeys.txt`.
 - `decrypt`: Set to `true` to decrypt the encrypted text from `encryptedText.txt` using the private key from `privateKeys.txt`.
-- `supersecretmode`: Set to `true` to use the super secret keys from `supersecretkeys/publicKeys.txt` and/or `supersecretkeys/privateKeys.txt`, or `false` to use the regular keys from `publicKeys.txt` and `privateKeys.txt`.
 
 Code containing the blocks below show all the variables that can be set to control the program's behavior, they exist in the main function of the `RSA.java` file. 
 

@@ -90,6 +90,7 @@ public class RSA {
 
         int result = 1;
         while (a.compareTo(BigInteger.ZERO) > 0) {
+            // while a is even, we can reduce it with rule 4
             while (a.mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
                 a = a.divide(BigInteger.TWO);
                 BigInteger nMod8 = n.mod(BigInteger.valueOf(8));
@@ -97,7 +98,8 @@ public class RSA {
                     result = -result;
                 }
             }
-            // Swap a and n
+
+            // now a is odd, we can use rule 5 (rule of quadratic reciprocity)
             BigInteger temp = a;
             a = n;
             n = temp;
@@ -105,6 +107,8 @@ public class RSA {
                 n.mod(BigInteger.valueOf(4)).equals(BigInteger.valueOf(3))) {
                 result = -result;
             }
+
+            // reduce a mod n (Rule 1)
             a = a.mod(n);
         }
         return n.equals(BigInteger.ONE) ? BigInteger.valueOf(result) : BigInteger.ZERO;
@@ -138,21 +142,17 @@ public class RSA {
         return a.abs(); 
     }
 
-    private static BigInteger modInverse(BigInteger A, BigInteger M)
-    {
-        BigInteger m0 = M;
+    private static BigInteger modInverse(BigInteger a, BigInteger m) {
+        // Find the modular inverse of a under mod m using the Extended Euclidean Algorithm
+
+        BigInteger temp_m = m; // Store m
         BigInteger y = BigInteger.ZERO, x = BigInteger.ONE;
 
-        if (M.equals(BigInteger.ONE))
+        if (m.equals(BigInteger.ONE))
             return BigInteger.ZERO;
 
-        BigInteger a = A;
-        BigInteger m = M;
-
         while (a.compareTo(BigInteger.ONE) > 0) {
-            // q is quotient
             BigInteger q = a.divide(m);
-
             BigInteger t = m;
 
             // m is remainder now, process same as Euclid's algo
@@ -160,14 +160,14 @@ public class RSA {
             a = t;
             t = y;
 
-            // Update x and y
+            //Update x and y, coeffs
             y = x.subtract(q.multiply(y));
             x = t;
         }
 
-        // Make x positive
+        // Make sure x is positive using m
         if (x.compareTo(BigInteger.ZERO) < 0)
-            x = x.add(m0);
+            x = x.add(temp_m);
 
         return x;
     }
@@ -373,6 +373,8 @@ public class RSA {
         // it uses the given plaintext and encrypted text files to test the encrypt and decrypt functions
         // changing the plaintext file will give different encrypted text and replace the encrypted text file
         // regardless of current working directory, as long as the files are in the project root it works
+
+        // To change what this priogram does, change the variables below, namely, the boolean variables
 
         String projectRoot = System.getProperty("user.dir");
         String plainTextFile = projectRoot + "/inputFiles/plainText.txt";

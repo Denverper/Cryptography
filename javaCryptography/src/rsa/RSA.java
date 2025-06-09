@@ -393,7 +393,7 @@ public class RSA {
         boolean writeToFiles = false; // set to true to write the keys to files (in the inputFiles directory), false to just print them out
 
         boolean encrypt = true; // set to true to encrypt the message
-        boolean decrypt = false; // set to true to decrypt the message
+        boolean decrypt = true; // set to true to decrypt the message
 
         if (supersecretmode) {
             // if supersecretmode is true, use the super secret keys (my personal keys) instead of the input files, which are the keys I generated for tests

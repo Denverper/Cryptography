@@ -27,5 +27,17 @@ def printOrdZn(n):
     print(elems)
     print("Num Generators:", ords.count(len(elems)), "\n")
     
-print(getOrd(7, 2691119))
-    
+def findCutDown(num_p):
+    primes = []
+    candidate = 2
+    while len(primes) < num_p:
+        for p in primes:
+            if candidate % p == 0:
+                break
+        else:
+            primes.append(candidate)
+        candidate += 1
+    res = 1
+    for p in primes:
+        res *= ((p-1)/p)
+    return 1/res

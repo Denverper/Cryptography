@@ -385,14 +385,14 @@ public class RSA {
         // if you have personal keys you want to use, set the supersecretmode to true and put them in a supersecretkeys directory
         String superSecretPublicKeys = projectRoot + "/supersecretkeys/publicKeys.txt";
         String superSecretPrivateKeys = projectRoot + "/supersecretkeys/privateKeys.txt";
-        boolean supersecretmode = false; 
+        boolean supersecretmode = true; 
 
         boolean generateKeys = false; // set to true to generate new keys, false to use existing keys
         final int REPS_A = 55; // change this to change the number of values of a we test in SS. higher number means more certain prime.
         boolean verbose = true; // set to true to print out key generation details, such as amount of primes tested, false to keep it quiet
         boolean writeToFiles = false; // set to true to write the keys to files (in the inputFiles directory), false to just print them out
 
-        boolean encrypt = true; // set to true to encrypt the message
+        boolean encrypt = false; // set to true to encrypt the message
         boolean decrypt = true; // set to true to decrypt the message
 
         if (supersecretmode) {

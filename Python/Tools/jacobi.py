@@ -48,7 +48,7 @@ def sofie_prime(num):
     return p > 1 and all(p % i != 0 for i in range(2, int(p**0.5) + 1))
 
 
-def get_generators(g, p):
+def is_generator(g, p):
     if not safe_prime(p):
         raise ValueError("Input must be a safe prime number.")
     
@@ -57,5 +57,3 @@ def get_generators(g, p):
         return True
     
     return False
-
-print(get_generators(2691118, 2691119))
